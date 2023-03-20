@@ -1,4 +1,4 @@
-Examples can be found here: https://www.tutorialspoint.com/behavior_driven_development/behavior_driven_development_gherkin.htm
-
-
-write out the steps here that you are doing.
+Feature: search bar
+Given the input "road bike"
+When the input phrase is searched
+The output code should contain the word road bike more than 5 times.
