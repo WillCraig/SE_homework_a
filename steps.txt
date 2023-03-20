@@ -1,4 +1,0 @@
-Feature: search bar
-Given the input "road bike"
-When the input phrase is searched
-The output code should contain the word road bike more than 5 times.

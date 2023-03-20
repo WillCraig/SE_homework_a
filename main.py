@@ -1,81 +1,89 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-import time
+from time import sleep
 
-WEBSITE = "https://www.bikesonline.com"
+WEBSITE = "https://www.shino.de/parkcalc/"
 
 
-def test_successful_search():
+def test_date_error():
     browser = webdriver.Chrome()
     try:
         browser.get(WEBSITE)
 
-        assert "Bikes Online | Best Online Bicycle Shop USA" in browser.title
+        assert "Parking Cost Calculator" in browser.title
 
-        search_input = browser.find_element(By.NAME, 'kw')
-        search_input.clear()
+        ending_date = browser.find_element(By.NAME, 'LeavingDate')
+        ending_date.clear()
+        ending_date.send_keys("nope")
+        ending_date.send_keys(Keys.RETURN)
 
-        search_input.send_keys("road bike")
-        search_input.send_keys(Keys.RETURN)
+        sleep(1)
+
+        calculate_button = browser.find_element(By.NAME, 'Submit')
+
+        sleep(1)
+        calculate_button.click()
 
         # wait for the search to complete.
-        time.sleep(5)
+        sleep(1)
 
-        page = browser.page_source
-
-        assert "No results found" not in page
-
-        sample = browser.find_element(By.CLASS_NAME, "findify-components-common--grid")
-
-        # number of times "Road Bike" appears in search area,
-        rb_str_occurrence: int = sample.text.count("Road Bike")
-
-        # indicate whether there are more than 5 occurrences of the term "Road Bike" in the search results.
-        assert rb_str_occurrence > 5
-
-
+        # This will indicate an error with the date format.
+        assert "ERROR! Enter A Correctly Formatted Date" in browser.page_source
 
     finally:
         browser.close()
 
 
-def test_button_press():
-
+def correct_use():
     browser = webdriver.Chrome()
     try:
         browser.get(WEBSITE)
 
-        assert "Bikes Online | Best Online Bicycle Shop USA" in browser.title
+        assert "Parking Cost Calculator" in browser.title
 
-        time.sleep(3)
+        starting_date = browser.find_element(By.NAME, 'StartingDate')
+        starting_date.clear()
+        starting_date.send_keys("07/25/1999")
+        starting_date.send_keys(Keys.RETURN)
 
-        lm_button = browser.find_element(By.CLASS_NAME, "main-direct-button")
+        ending_date = browser.find_element(By.NAME, 'LeavingDate')
+        ending_date.clear()
+        ending_date.send_keys("07/25/2023")
+        ending_date.send_keys(Keys.RETURN)
 
-        try:
-            lm_button.click()
-        except:
-            print('error')
+        # StartingTime
+        start_time = browser.find_element(By.NAME, 'StartingTime')
+        start_time.clear()
+        start_time.send_keys("07:00")
+        start_time.send_keys(Keys.RETURN)
 
-        lm_button.click()
+        sleep(1)
 
-        time.sleep(5)
+        calculate_button = browser.find_element(By.NAME, 'Submit')
 
-        assert "Learn More About Us | Bikes Online" in browser.title
+        sleep(1)
+        calculate_button.click()
 
+        # wait for the search to complete.
+        sleep(1)
+
+        # label = browser.find_element(By.CLASS_NAME, "SubHead")
+        content = browser.page_source
+
+        # This will indicate an error with the date format.
+        assert "$ 157,788.00" in content
+        assert "(8765 Days, 17 Hours, 0 Minutes)" in content
 
     finally:
         browser.close()
 
 
-if __name__ == "__main__":
-    print("Hello world, program is starting...")
-    time.sleep(2)
+if __name__ == '__main__':
+    print(f"Parking test...({WEBSITE})..\n")
 
-    test_successful_search()
+    test_date_error()
 
-    time.sleep(5)
+    correct_use()
 
-    test_button_press()
-
-    print("done.")
+    print("\n\nEND OF PROGRAM..")
